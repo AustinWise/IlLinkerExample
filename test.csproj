@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <ShowLinkerSizeComparison>True</ShowLinkerSizeComparison>
+    <RootAllApplicationAssemblies>False</RootAllApplicationAssemblies>
+    <UsedApplicationAssemblyAction>Link</UsedApplicationAssemblyAction>
+    <UsedPlatformAssemblyAction>Link</UsedPlatformAssemblyAction>
+    <CrossGenDuringPublish>False</CrossGenDuringPublish>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
+  </ItemGroup>
+
+</Project>
