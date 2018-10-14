@@ -10,7 +10,8 @@ dotnet publish -c  release -r win-x64 -o publish
 
 # Results
 
-Deleted assemblies are not included in this list.
+These numbers do no include the native executables, which on
+Windows X64 are about 9MB. Deleted assemblies are not included in this list.
 
 |                        |Before linking (B)|After linking (B)|Size decrease|
 |------------------------|------------------|-----------------|-------------|
