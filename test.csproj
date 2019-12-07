@@ -2,16 +2,28 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <ShowLinkerSizeComparison>True</ShowLinkerSizeComparison>
-    <RootAllApplicationAssemblies>False</RootAllApplicationAssemblies>
-    <UsedApplicationAssemblyAction>Link</UsedApplicationAssemblyAction>
-    <UsedPlatformAssemblyAction>Link</UsedPlatformAssemblyAction>
-    <CrossGenDuringPublish>False</CrossGenDuringPublish>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PublishTrimmed>True</PublishTrimmed>
+    <!--
+        While this file defines lots of nice MSBuild properties:
+            C:\Program Files\dotnet\sdk\3.1.100\Sdks\ILLink.Tasks\build\ILLink.Tasks.targets
+        They don't seem to useable in standard .NET Core projects.
+        Instead we directly define arguments for the linker.
+
+        These arguments cause both the application application assemblies
+        and the framework assemblies to be linked.
+    -->
+    <_ExtraTrimmerArgs>-c Link -u Link</_ExtraTrimmerArgs>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
-  </ItemGroup>
+  <!-- This task does not effect the output. It is just for printing the size information. -->
+  <UsingTask TaskName="CompareAssemblySizes" AssemblyFile="$(ILLinkTasksAssembly)" />
+  <Target Name="_CompareLinkedAssemblySizes"
+          AfterTargets="ILLink"
+          DependsOnTargets="ILLink"
+          Condition=" '$(PublishTrimmed)' == 'true' ">
+    <CompareAssemblySizes UnlinkedAssemblies="@(_ManagedAssembliesToLink)"
+                          LinkedAssemblies="@(_LinkedResolvedFileToPublish)" />
+  </Target>
 
 </Project>
