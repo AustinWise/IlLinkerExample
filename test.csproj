@@ -16,6 +16,44 @@
     <_ExtraTrimmerArgs>-c Link -u Link</_ExtraTrimmerArgs>
   </PropertyGroup>
 
+  <!--
+    This is a hacky way to remove a bunch of native files from the publish.
+    Some of these files are required for running on operating prior to Windows 10 (api-ms-* and ucrtbase)
+    Other DLLs are related to debugging and printing line numbers in stack traces (mscordac and DiaSymReader)
+    Others I'm not really sure are important, like ClrEtwRc and MsCorRc, so let's try deleting them.
+    But this shaves off a couple megs and gets everything down to to under 11MB.
+    -->
+  <Target Name="RemoveDebuggingFilesFromOutput"
+          DependsOnTargets="ResolveRuntimePackAssets"
+          AfterTargets="ResolveRuntimePackAssets"
+          BeforeTargets="GenerateBuildDependencyFile;ComputeFilesToPublish;ComputeResolvedFilesToPublishList"
+          Condition="'$(SelfContained)' == 'true'">
+    <ItemGroup>
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="$([System.String]::Copy(%(RuntimePackAsset.FileName)).StartsWith('api-ms-win-'))" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'clretwrc'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'dbgshim'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'Microsoft.DiaSymReader.Native.amd64'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'mscordaccore'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'mscordaccore_amd64_amd64_4.700.20.20201'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'mscordbi'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'mscorrc.debug'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'mscorrc'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'SOS_README'" />
+      <RuntimePackAsset Remove="@(RuntimePackAsset)" Condition="'%(RuntimePackAsset.FileName)' == 'ucrtbase'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy(%(ReferenceCopyLocalPaths.FileName)).StartsWith('api-ms-win-'))" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'clretwrc'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'dbgshim'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'Microsoft.DiaSymReader.Native.amd64'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'mscordaccore'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'mscordaccore_amd64_amd64_4.700.20.20201'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'mscordbi'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'mscorrc.debug'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'mscorrc'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'SOS_README'" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.FileName)' == 'ucrtbase'" />
+    </ItemGroup>
+  </Target>
+
   <!-- This task does not effect the output. It is just for printing the size information. -->
   <UsingTask TaskName="CompareAssemblySizes" AssemblyFile="$(ILLinkTasksAssembly)" />
   <Target Name="_CompareLinkedAssemblySizes"
